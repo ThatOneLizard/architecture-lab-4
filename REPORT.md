@@ -69,7 +69,17 @@ Modify cache.c to access memory locations that map to the same L1 cache set. If 
 
 ### Q7. Make that modification and run it on the sg2000. What do you observe?
 
+With a 4KiB stride, there was little change in access time. Roughly 13ns to 15ns at 5 to 6 locations, 15ns to 16ns at 6 to 7, and 16ns to 17ns at 8 to 9 locations.
+
+With a 8KiB stride, there was a larger jump in access time. Roughly 13-15ns from 1 to 8 locations, 108ns at 9, and 181ns from 10 to 16 locations.
+
+With a 16KiB stride, the jump in accesss time happened sooner. Roughly 12.5ns from 1 to 4 locations, then around 180ns from 5 to 16 locations.
+
+Lastly, With a 32KiB stride, the behavior was very close to the same as the 16KiB stides. Roughly 12.5ns from 1 to 4 locations, then around 180-200ns from 5 to 16 locations.
+
 ### Q8. Get it to actually usefully work to expose wayness. What did you need to do? What did you observe?
+
+Controlling the stride and increases the number of locations gradually exposed the wayness. The Sharp increases. This suggests that the SG2000's L1 Cache is 4 way.
 
 ### Q9. Run it on your laptop. How many ways does that indicate the L1 cache is? Does that match your CPUs published specs?
 
