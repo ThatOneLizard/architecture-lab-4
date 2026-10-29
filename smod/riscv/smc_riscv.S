@@ -60,6 +60,7 @@ a:
 
 	ori	t2, t2, 0x6f		/* rd = x0, opcode = JAL */
 	sw	t2, 0(t0)
+	fence.i
 b:
 	j	e
 c:

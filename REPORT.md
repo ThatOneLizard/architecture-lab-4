@@ -1,3 +1,5 @@
+# Lab 4 Report
+
 ## Part 1: Characterize Our Caches
 
 ### Q1. What's the cache layout for the big C906 CPU on the sg2000?
@@ -96,13 +98,43 @@ First, try the amd64 Linux or armd64 MacOS version.
 
 ### Q10. Did it work? Why? If not, can you fix it to work?
 
-Then try the riscv version on the dev board.
+Got this message on execution: 
+```
+mprotect (page left executable but not writable): Permission denied
+zsh: bus error  ./smc
+```
+This is because macOS restricts a program from being writable and executable at the same time.
+
+### Then try the riscv version on the dev board.
+
+Got this message on execution: 
+```
+self modification failed
+```
 
 ### Q11. Why didn't it work?
 
-### Q12. Can you fix it by sticking nops between the instruction that does the
-modification and the modified instruction? How many do you need? Why?
+It fails on macOS because macOS restricts a program from being writable and executable at the same time.
 
-### Q13. Is there a simpler solution? See <https://docs.riscv.org/reference/isa/v20260120/unpriv/unpriv-index.html>
+On the riscv version on my dev board, I got it to work by adding one line ```fence.i```
+
+It was added here: 
+
+``` 
+    ori t2, t2, 0x6f      /* rd = x0, opcode = JAL */
+    sw  t2, 0(t0)         /* overwrite instruction b */
+    fence.i  
+
+b:
+    j   e
+```
+
+### Q12. Can you fix it by sticking nops between the instruction that does the modification and the modified instruction? How many do you need? Why?
+
+No, adding nops is not a reliable fix. On macOS, no amount of nops can get around the restriction that the code page cannot be made writable and executable simultaneously.
+
+### Q13. Is there a simpler solution? See <https://docs.riscv.org/reference/isa/v20260120/unpriv/unpriv-index.html> (Bonus Question, no response OK)
 
 ### Q14. Modern operating systems prevent self modifying code. Is this a good tradeoff? What are we losing?
+
+I think this is a good tradeoff because preventing self-modifying code makes systems more secure and predictable. If a memory page can be both writable and executable, malicious software could modify program instructions while they are running, making certain attacks easier. Restricting memory permissions helps prevent this.
