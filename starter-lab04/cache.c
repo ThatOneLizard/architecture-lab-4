@@ -2,62 +2,64 @@
 #include <stdio.h>
 #include <time.h>
 
-#define MAX_SZ 17 // 2^(17+3) = 1 MB
-#define NN (1 << (MAX_SZ + 3))
+#define CACHE_LINE_SIZE 64
+#define MAX_NODES 16
+#define ITERATIONS 5000000
 
-long data[NN];
+// Try different distances between memory locations.
+#define NUM_STRIDES 4
 
-double
-get_time()
+long data[MAX_NODES * 4096];
+
+double get_time(void)
 {
     struct timespec tm;
-    assert(0 == clock_gettime(CLOCK_MONOTONIC, &tm));
-    double ts = (double)tm.tv_sec;
-    ts += ((double)tm.tv_nsec) / (1000.0 * 1000.0 * 1000.0);
-    return ts;
+    assert(clock_gettime(CLOCK_MONOTONIC, &tm) == 0);
+
+    return (double)tm.tv_sec +
+           (double)tm.tv_nsec / 1000000000.0;
 }
 
-static signed long state = 88172645463325252ULL; // Must be non-zero
-
-static inline long
-roll(long xx, long sz)
+void run_test(int nodes, int stride_bytes)
 {
-    state ^= state << 13;
-    state ^= state >> 7;
-    state ^= state << 17;
-    return (state + xx) & ((1 << sz) - 1);
-}
+    int stride = stride_bytes / sizeof(long);
 
-void
-run_size_test(long sz)
-{
-    long count = 100 * 1000 * 1000;
-    long nn = 1 << sz;
+    // Link the selected memory locations in a cycle.
+    for (int i = 0; i < nodes; i++) {
+        data[i * stride] = (i + 1) % nodes;
+    }
+
+    volatile long index = 0;
 
     double t0 = get_time();
 
-    long yy = 0;
-    for (long jj = 0; jj < count; ++jj) {
-        int xx = data[roll(yy, sz)];
-        yy += xx;
+    for (long i = 0; i < ITERATIONS; i++) {
+        index = data[index * stride];
     }
 
     double t1 = get_time();
 
-    printf("sz = %ld (%ld B), time = %.03fs\n", sz, (1L << sz) * 8, t1 - t0);
-
-    assert(yy == count);
+    printf("Stride: %5d B | Locations: %2d | "
+           "Time: %.4f s | %.2f ns/access\n",
+           stride_bytes,
+           nodes,
+           t1 - t0,
+           (t1 - t0) * 1e9 / ITERATIONS);
 }
 
-int
-main(int argc, char* argv[])
+int main(void)
 {
-    // Fill the block with 1's.
-    for (long ii = 0; ii < NN; ++ii) {
-        data[ii] = 1;
+    int strides[NUM_STRIDES] = {
+        4096, 8192, 16384, 32768
+    };
+
+    for (int s = 0; s < NUM_STRIDES; s++) {
+        printf("\nTesting stride of %d bytes\n", strides[s]);
+
+        for (int nodes = 1; nodes <= MAX_NODES; nodes++) {
+            run_test(nodes, strides[s]);
+        }
     }
 
-    for (long jj = 8; jj <= MAX_SZ; ++jj) {
-        run_size_test(jj);
-    }
+    return 0;
 }
