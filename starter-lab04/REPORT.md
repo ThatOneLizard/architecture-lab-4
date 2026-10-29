@@ -17,6 +17,7 @@ We observed that for each increase in size, the number of bits went up each
 time within roughly the same amount of time throughout most of the tests. The 
 size 9 to size 14 also had the exact same time.
 
+```
 sz = 8 (2048 B), time = 0.168s
 sz = 9 (4096 B), time = 0.137s
 sz = 10 (8192 B), time = 0.137s
@@ -27,6 +28,7 @@ sz = 14 (131072 B), time = 0.137s
 sz = 15 (262144 B), time = 0.164s
 sz = 16 (524288 B), time = 0.204s
 sz = 17 (1048576 B), time = 0.197s
+```
 
 ### Q4. What does cache.c do? How could you modify it to be maximally interesting to run on your laptop CPU?
 
@@ -37,6 +39,7 @@ To make it more interesting, I'd increase the range of memory sizes, say from 1K
 ### Q5. Run it on your laptop CPU with your modification? Did you get the expected result? Explain.
 
 Output:
+```
 sz = 7 (1024 B), time = 0.140s
 sz = 8 (2048 B), time = 0.164s
 sz = 9 (4096 B), time = 0.178s
@@ -56,6 +59,7 @@ sz = 22 (33554432 B), time = 1.573s
 sz = 23 (67108864 B), time = 3.162s
 sz = 24 (134217728 B), time = 3.697s
 sz = 25 (268435456 B), time = 4.250s
+```
 
 Yes, As the working-set size increased, execution time generally increased because the larger arrays put more pressure on the cache hierarchy and may require more accesses to slower memory. The sharp increase between 8MiB and 16MiB indicates a cache-capacity threshold.
 
