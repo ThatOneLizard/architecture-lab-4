@@ -1,0 +1,64 @@
+# Compiled executables
+*.out
+*.exe
+*.o
+*.a
+*.so
+*.dylib
+a.out
+
+# Build directories
+build/
+dist/
+
+# Debugging and profiling
+core
+core.*
+*.core
+*.prof
+*.gcda
+*.gcno
+
+# Temporary and backup files
+*.tmp
+*.temp
+*.bak
+*~
+*.swp
+*.swo
+.DS_Store
+
+# macOS
+.AppleDouble
+.LSOverride
+._*
+
+# Linux
+.directory
+.Trash-*
+
+# Editors and IDEs
+.vscode/
+.idea/
+*.code-workspace
+
+# Logs
+*.log
+
+# Environment variables and local secrets
+.env
+.env.*
+!.env.example
+
+# Archives and generated packages
+*.tar
+*.tar.gz
+*.zip
+
+# Python caches (if used for scripts)
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+
+# C/C++ generated
